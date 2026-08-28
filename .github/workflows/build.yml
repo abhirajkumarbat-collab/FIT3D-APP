@@ -1,0 +1,35 @@
+.github/workflows/build.yml
+name: Build FIT3D APK
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get files
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Extract ZIP and Build APK
+        run: |
+          unzip *.zip -d my_app
+          cd my_app
+          PROJECT_DIR=$(dirname $(find . -name "gradlew" | head -n 1))
+          cd $PROJECT_DIR
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: FIT3D-App-APK
+          path: my_app/**/*.apk
